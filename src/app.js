@@ -39,6 +39,17 @@ const removeTodo = id => ({
   id
 });
 
+const startRemoveTodo = id => {
+  return dispatch => {
+    database
+      .ref(`todos/${id}`)
+      .remove()
+      .then(() => {
+        dispatch(removeTodo(id));
+      });
+  };
+};
+
 const updateTodo = (id, updatedTodo) => ({
   type: 'UPDATE_TODO',
   id,
@@ -110,14 +121,17 @@ store.subscribe(() => {
 //  DISPATCH--------------------------
 //----------------------------------------------
 
-store.dispatch(startSetTodos());
+// store.dispatch(startSetTodos());
 
 // const todo1 = store.dispatch(
 //   startAddTodo({ title: 'run', body: 'run 2km daily' })
 // );
 // const todo2 = store.dispatch(startAddTodo({ title: 'homework' }));
 
-// store.dispatch(removeTodo(todo1.todo.id));
+// setTimeout(() => {
+//   store.dispatch(startRemoveTodo('-LG6gnjyNvMI0yqPJ67n'));
+// }, 5000);
+//
 
 // store.dispatch(
 //   updateTodo(todo2.todo.id, { body: 'last homework', completed: true })
