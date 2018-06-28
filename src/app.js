@@ -1,27 +1,38 @@
-import { createStore } from 'redux';
-import uuidv1 from 'uuid/v1';
+import { createStore, applyMiddleware } from 'redux';
+import thunk from 'redux-thunk';
+import { database } from './firebase/configFirebase';
 
 //-----------------------------------------------
 //  ACTION GENERATORS----------------------------
 //-----------------------------------------------
 
-const addTodo = ({
+const addTodo = todo => ({
+  type: 'ADD_TODO',
+  todo
+});
+
+const startAddTodo = ({
   title = '',
   body = '',
   createdAt = 0,
   completedAt = 0,
   completed = false
-} = {}) => ({
-  type: 'ADD_TODO',
-  todo: {
-    id: uuidv1(),
-    title,
-    body,
-    createdAt,
-    completedAt,
-    completed
-  }
-});
+} = {}) => {
+  return dispatch => {
+    const todo = { title, body, createdAt, completedAt, completed };
+    database
+      .ref('todos')
+      .push(todo)
+      .then(ref => {
+        dispatch(
+          addTodo({
+            id: ref.key,
+            ...todo
+          })
+        );
+      });
+  };
+};
 
 const removeTodo = id => ({
   type: 'REMOVE_TODO',
@@ -35,10 +46,10 @@ const updateTodo = (id, updatedTodo) => ({
 });
 
 //-----------------------------------------------
-//  STORE CONFIGURATION--------------------------
+//  REDUCERS-------------------------------------
 //-----------------------------------------------
 const defaultState = [];
-const store = createStore((state = defaultState, action) => {
+const todosReducer = (state = defaultState, action) => {
   switch (action.type) {
     case 'ADD_TODO':
       return state.concat(action.todo);
@@ -58,17 +69,29 @@ const store = createStore((state = defaultState, action) => {
     default:
       return state;
   }
-});
+};
+
+//-----------------------------------------------
+//  STORE CONFIGURATION--------------------------
+//-----------------------------------------------
+
+const store = createStore(todosReducer, applyMiddleware(thunk));
 
 store.subscribe(() => {
   console.log(store.getState());
 });
 
-const todo1 = store.dispatch(addTodo({ title: 'run', body: 'run 2km daily' }));
-const todo2 = store.dispatch(addTodo({ title: 'homework' }));
+//-----------------------------------------------
+//  DISPATCH--------------------------
+//----------------------------------------------
 
-store.dispatch(removeTodo(todo1.todo.id));
-
-store.dispatch(
-  updateTodo(todo2.todo.id, { body: 'last homework', completed: true })
+const todo1 = store.dispatch(
+  startAddTodo({ title: 'run', body: 'run 2km daily' })
 );
+const todo2 = store.dispatch(startAddTodo({ title: 'homework' }));
+
+// store.dispatch(removeTodo(todo1.todo.id));
+
+// store.dispatch(
+//   updateTodo(todo2.todo.id, { body: 'last homework', completed: true })
+// );

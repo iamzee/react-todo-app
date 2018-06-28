@@ -5,13 +5,14 @@
   "license": "MIT",
   "scripts": {
     "build:dev": "webpack",
-    "serve": "live-server public"
+    "serve": "webpack-dev-server"
   },
   "dependencies": {
     "babel-core": "^6.26.3",
     "babel-loader": "^7.1.4",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-env": "^1.7.0",
+    "dotenv": "^6.0.0",
     "firebase": "^5.1.0",
     "live-server": "^1.2.0",
     "redux": "^4.0.0",
