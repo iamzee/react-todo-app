@@ -56,6 +56,17 @@ const updateTodo = (id, updatedTodo) => ({
   updatedTodo
 });
 
+const startUpdateTodo = (id, updatedTodo) => {
+  return dispatch => {
+    database
+      .ref(`todos/${id}`)
+      .update(updatedTodo)
+      .then(() => {
+        dispatch(updateTodo(id, updatedTodo));
+      });
+  };
+};
+
 const setTodos = todos => ({
   type: 'SET_TODOS',
   todos
@@ -136,3 +147,5 @@ store.subscribe(() => {
 // store.dispatch(
 //   updateTodo(todo2.todo.id, { body: 'last homework', completed: true })
 // );
+
+store.dispatch(startUpdateTodo('-LG70OKUn-uZl9xGkALw', { completed: true }));
