@@ -45,6 +45,29 @@ const updateTodo = (id, updatedTodo) => ({
   updatedTodo
 });
 
+const setTodos = todos => ({
+  type: 'SET_TODOS',
+  todos
+});
+
+const startSetTodos = () => {
+  return dispatch => {
+    database
+      .ref('todos')
+      .once('value')
+      .then(snapshot => {
+        let todos = [];
+        snapshot.forEach(childSnapshot => {
+          todos.push({
+            id: childSnapshot.key,
+            ...childSnapshot.val()
+          });
+        });
+        dispatch(setTodos(todos));
+      });
+  };
+};
+
 //-----------------------------------------------
 //  REDUCERS-------------------------------------
 //-----------------------------------------------
@@ -66,6 +89,8 @@ const todosReducer = (state = defaultState, action) => {
           return todo;
         }
       });
+    case 'SET_TODOS':
+      return action.todos;
     default:
       return state;
   }
@@ -85,10 +110,12 @@ store.subscribe(() => {
 //  DISPATCH--------------------------
 //----------------------------------------------
 
-const todo1 = store.dispatch(
-  startAddTodo({ title: 'run', body: 'run 2km daily' })
-);
-const todo2 = store.dispatch(startAddTodo({ title: 'homework' }));
+store.dispatch(startSetTodos());
+
+// const todo1 = store.dispatch(
+//   startAddTodo({ title: 'run', body: 'run 2km daily' })
+// );
+// const todo2 = store.dispatch(startAddTodo({ title: 'homework' }));
 
 // store.dispatch(removeTodo(todo1.todo.id));
 
